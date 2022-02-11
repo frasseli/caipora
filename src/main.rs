@@ -34,7 +34,7 @@ async fn run_node_query_utxo(_req: HttpRequest, address: web::Path<String>) -> i
     let output = Command::new("cardano-cli")
         .arg("query")
         .arg("utxo")
-        .arg("address")
+        .arg("--address")
         .arg(&address.as_str())
         .arg("--testnet-magic")
         .arg("1097911063")
