@@ -12,6 +12,7 @@ async fn run_node_cmd(cmd: web::Path<String>) -> impl Responder {
         .arg(&cmd.as_str())
         .arg("--testnet-magic")
         .arg("1097911063")
+        .arg("--out-file=/dev/stdout")
         .output()
         .expect("failed to execute process");
 
@@ -38,6 +39,7 @@ async fn run_node_query_utxo(_req: HttpRequest, address: web::Path<String>) -> i
         .arg(&address.as_str())
         .arg("--testnet-magic")
         .arg("1097911063")
+        .arg("--out-file=/dev/stdout")
         .output()
         .expect("failed to execute process");
 
