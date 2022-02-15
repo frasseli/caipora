@@ -1,0 +1,7 @@
+application:
+  port: 8000
+  host: 127.0.0.1
+  secret: "caipora"
+node:
+  environment: testnet
+  magic_number: 1097911063

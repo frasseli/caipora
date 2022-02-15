@@ -1,5 +1,6 @@
-use actix_web::{web, App, HttpRequest, HttpServer, Responder, http::StatusCode};
-use std::process::Command;
+use actix_web::{http::StatusCode, web, App, HttpRequest, HttpServer, Responder};
+use caipora::configuration::get_configuration;
+use caipora::query::{node_query_tip, node_query_utxo};
 
 async fn index(_req: HttpRequest) -> impl Responder {
     "<h1>This is the Index Page from the CAIPORA Service!</h1><br><p>Please read the docs to know how to run all the commands.</p>"
@@ -7,56 +8,26 @@ async fn index(_req: HttpRequest) -> impl Responder {
     .with_header("content-type", "text/html; charset=utf-8")
 }
 
-async fn run_node_cmd(cmd: web::Path<String>) -> impl Responder {
-    let output = Command::new("cardano-cli")
-        .arg(&cmd.as_str())
-        .arg("--testnet-magic")
-        .arg("1097911063")
-        .arg("--out-file=/dev/stdout")
-        .output()
-        .expect("failed to execute process");
-
-    String::from_utf8(output.stdout).unwrap()
-}
-
-async fn run_node_query_tip(_req: HttpRequest) -> impl Responder {
-    let output = Command::new("cardano-cli")
-        .arg("query")
-        .arg("tip")
-        .arg("--testnet-magic")
-        .arg("1097911063")
-        .output()
-        .expect("failed to execute process");
-
-    String::from_utf8(output.stdout).unwrap()
-}
-
-async fn run_node_query_utxo(_req: HttpRequest, address: web::Path<String>) -> impl Responder {
-    let output = Command::new("cardano-cli")
-        .arg("query")
-        .arg("utxo")
-        .arg("--address")
-        .arg(&address.as_str())
-        .arg("--testnet-magic")
-        .arg("1097911063")
-        .arg("--out-file=/dev/stdout")
-        .output()
-        .expect("failed to execute process");
-
-    String::from_utf8(output.stdout).unwrap()
-}
-
-
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    // Panic if we can't read configuration
+    let configuration = get_configuration().expect("Failed to read configuration.");
+
+    println!(
+        "Caipora is watching over {}:{}",
+        configuration.application.host, configuration.application.port
+    );
+
     HttpServer::new(|| {
         App::new()
             .route("/", web::get().to(index))
-            .route("/tip", web::get().to(run_node_query_tip))
-            .route("/utxo/{address}", web::get().to(run_node_query_utxo))
-            .route("/cmd/{cmd}", web::get().to(run_node_cmd))
+            .route("/tip", web::get().to(node_query_tip))
+            .route("/utxo/{address}", web::get().to(node_query_utxo))
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind((
+        configuration.application.host,
+        configuration.application.port,
+    ))?
     .run()
     .await
 }
