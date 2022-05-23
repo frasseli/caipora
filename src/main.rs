@@ -1,5 +1,5 @@
 use actix_web::{http::StatusCode, web, App, HttpRequest, HttpServer, Responder};
-use caipora::configuration::get_configuration;
+use caipora::{configuration::get_configuration, protocol::update_protocol_parameters};
 use caipora::query::{node_query_tip, node_query_utxo};
 
 async fn index(_req: HttpRequest) -> impl Responder {
@@ -12,6 +12,12 @@ async fn index(_req: HttpRequest) -> impl Responder {
 async fn main() -> std::io::Result<()> {
     // Panic if we can't read configuration
     let configuration = get_configuration().expect("Failed to read configuration.");
+
+    println!("Updating protocol parameters...");
+    let protocol_update = update_protocol_parameters().await;
+    if protocol_update {
+        println!("Parameters updated in file protocol.json");
+    }
 
     println!(
         "Caipora is watching over {}:{}",

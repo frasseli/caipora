@@ -2,6 +2,8 @@ application:
   port: 8000
   host: 0.0.0.0
   secret: "caipora"
+  policy_vkey_file: "~/caipora/policy/policy.vkey"
+  policy_skey_file: "~/caipora/policy/policy.skey"
 node:
   environment: testnet
   magic_number: 1097911063

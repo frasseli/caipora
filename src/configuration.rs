@@ -9,6 +9,8 @@ pub struct ApplicationSettings {
     pub port: u16,
     pub host: String,
     pub secret: String,
+    pub policy_vkey_file: String,
+    pub policy_skey_file: String,
 }
 
 #[derive(serde::Deserialize)]
